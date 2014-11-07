@@ -10,11 +10,11 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
   milestone 1
 
   # Config for xml to hash is:
-  #
+  # [source,ruby]
   #     source => source_field
   #
   # For example, if you have the whole xml document in your message field:
-  #
+  # [source,ruby]
   #     filter {
   #       xml {
   #         source => "message"
@@ -27,7 +27,7 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
   # Define target for placing the data
   #
   # for example if you want the data to be put in the 'doc' field:
-  #
+  # [source,ruby]
   #     filter {
   #       xml {
   #         target => "doc"
@@ -35,15 +35,15 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
   #     }
   #
   # XML in the value of the source field will be expanded into a
-  # datastructure in the "target" field.
-  # Note: if the "target" field already exists, it will be overridden
+  # datastructure in the `target` field.
+  # Note: if the `target` field already exists, it will be overridden
   # Required
   config :target, :validate => :string
 
   # xpath will additionally select string values (.to_s on whatever is selected)
   # from parsed XML (using each source field defined using the method above)
   # and place those values in the destination fields. Configuration:
-  #
+  # [source,ruby]
   # xpath => [ "xpath-syntax", "destination-field" ]
   #
   # Values returned by XPath parsring from xpath-synatx will be put in the
