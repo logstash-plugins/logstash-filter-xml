@@ -7,7 +7,6 @@ require "logstash/namespace"
 class LogStash::Filters::Xml < LogStash::Filters::Base
 
   config_name "xml"
-  milestone 1
 
   # Config for xml to hash is:
   # [source,ruby]
