@@ -61,6 +61,10 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
   # field as described above. Setting this to false will prevent that.
   config :store_xml, :validate => :boolean, :default => true
 
+  # Remove all namespaces from all nodes in the document.
+  # Of course, if the document had nodes with the same names but different namespaces, they will now be ambiguous.
+  config :remove_namespaces, :validate => :boolean, :default => false
+
   public
   def register
     require "nokogiri"
@@ -97,7 +101,7 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
                      :exception => e, :backtrace => e.backtrace)
         return
       end
-
+      doc.remove_namespaces! if @remove_namespaces
       @xpath.each do |xpath_src, xpath_dest|
         nodeset = doc.xpath(xpath_src)
 
