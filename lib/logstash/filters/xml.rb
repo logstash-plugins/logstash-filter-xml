@@ -12,7 +12,7 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
   # [source,ruby]
   #     source => source_field
   #
-  # For example, if you have the whole xml document in your message field:
+  # For example, if you have the whole XML document in your `message` field:
   # [source,ruby]
   #     filter {
   #       xml {
@@ -20,12 +20,12 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
   #       }
   #     }
   #
-  # The above would parse the xml from the message field
+  # The above would parse the XML from the `message` field.
   config :source, :validate => :string, :required => true
 
   # Define target for placing the data
   #
-  # for example if you want the data to be put in the 'doc' field:
+  # For example if you want the data to be put in the `doc` field:
   # [source,ruby]
   #     filter {
   #       xml {
@@ -35,29 +35,30 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
   #
   # XML in the value of the source field will be expanded into a
   # datastructure in the `target` field.
-  # Note: if the `target` field already exists, it will be overridden
-  # Required
+  # Note: if the `target` field already exists, it will be overridden.
+  # Required if `store_xml` is true (which is the default).
   config :target, :validate => :string
 
-  # xpath will additionally select string values (.to_s on whatever is selected)
-  # from parsed XML (using each source field defined using the method above)
-  # and place those values in the destination fields. Configuration:
+  # xpath will additionally select string values (non-strings will be
+  # converted to strings with Ruby's `to_s` function) from parsed XML
+  # (using each source field defined using the method above) and place
+  # those values in the destination fields. Configuration:
   # [source,ruby]
   # xpath => [ "xpath-syntax", "destination-field" ]
   #
-  # Values returned by XPath parsring from xpath-synatx will be put in the
+  # Values returned by XPath parsing from `xpath-syntax` will be put in the
   # destination field. Multiple values returned will be pushed onto the
   # destination field as an array. As such, multiple matches across
-  # multiple source fields will produce duplicate entries in the field
+  # multiple source fields will produce duplicate entries in the field.
   #
-  # More on xpath: http://www.w3schools.com/xpath/
+  # More on XPath: http://www.w3schools.com/xpath/
   #
-  # The xpath functions are particularly powerful:
+  # The XPath functions are particularly powerful:
   # http://www.w3schools.com/xpath/xpath_functions.asp
   #
   config :xpath, :validate => :hash, :default => {}
 
-  # By default the filter will store the whole parsed xml in the destination
+  # By default the filter will store the whole parsed XML in the destination
   # field as described above. Setting this to false will prevent that.
   config :store_xml, :validate => :boolean, :default => true
 
