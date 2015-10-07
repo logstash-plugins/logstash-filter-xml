@@ -75,7 +75,7 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
 
   public
   def filter(event)
-    return unless filter?(event)
+    
     matched = false
 
     @logger.debug("Running xml filter", :event => event)
