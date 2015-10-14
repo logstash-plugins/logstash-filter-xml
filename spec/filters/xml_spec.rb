@@ -189,6 +189,42 @@ describe LogStash::Filters::Xml do
     end
   end
 
+  describe "parse including namespaces declarations on root" do
+      config <<-CONFIG
+      filter {
+        xml {
+          source => "xmldata"
+          xpath => [ "/foo/h:div", "xpath_field" ]
+          namespaces => {"h" => "http://www.w3.org/TR/html4/"}
+          remove_namespaces => false
+        }
+      }
+      CONFIG
+
+      # Single value
+      sample("xmldata" => '<foo xmlns:h="http://www.w3.org/TR/html4/"><h:div>Content</h:div></foo>') do
+        insist { subject["xpath_field"] } == ["<h:div>Content</h:div>"]
+      end
+  end
+  
+  describe "parse including namespaces declarations on child" do
+      config <<-CONFIG
+      filter {
+        xml {
+          source => "xmldata"
+          xpath => [ "/foo/h:div", "xpath_field" ]
+          namespaces => {"h" => "http://www.w3.org/TR/html4/"}
+          remove_namespaces => false
+        }
+      }
+      CONFIG
+
+      # Single value
+      sample("xmldata" => '<foo><h:div xmlns:h="http://www.w3.org/TR/html4/">Content</h:div></foo>') do
+        insist { subject["xpath_field"] } == ["<h:div xmlns:h=\"http://www.w3.org/TR/html4/\">Content</h:div>"]
+      end
+  end
+
   describe "parse removing namespaces" do
     config <<-CONFIG
     filter {

@@ -62,6 +62,23 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
   # field as described above. Setting this to false will prevent that.
   config :store_xml, :validate => :boolean, :default => true
 
+  # By default only namespaces declarations on the root element are considered. 
+  # This allows to configure all namespace declarations to parse the XML document.
+  #
+  # Example:
+  #
+  # [source,ruby]
+  # filter {
+  #   xml {
+  #     namespaces => {
+  #       "xsl" => "http://www.w3.org/1999/XSL/Transform"
+  #       "xhtml" => http://www.w3.org/1999/xhtml"
+  #     }
+  #   }
+  # }
+  #
+  config :namespaces, :validate => :hash, :default => {}
+
   # Remove all namespaces from all nodes in the document.
   # Of course, if the document had nodes with the same names but different namespaces, they will now be ambiguous.
   config :remove_namespaces, :validate => :boolean, :default => false
@@ -92,7 +109,7 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
 
     # Do nothing with an empty string.
     return if value.strip.length == 0
-
+        
     if @xpath
       begin
         doc = Nokogiri::XML(value, nil, value.encoding.to_s)
@@ -104,7 +121,9 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
       end
       doc.remove_namespaces! if @remove_namespaces
       @xpath.each do |xpath_src, xpath_dest|
-        nodeset = doc.xpath(xpath_src)
+        
+        nodeset = @namespaces.empty? ? doc.xpath(xpath_src) : doc.xpath(xpath_src, @namespaces)
+
 
         # If asking xpath for a String, like "name(/*)", we get back a
         # String instead of a NodeSet.  We normalize that here.
