@@ -62,7 +62,7 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
   # field as described above. Setting this to false will prevent that.
   config :store_xml, :validate => :boolean, :default => true
 
-  # By default only namespaces declarations on the root element are considered. 
+  # By default only namespace declarations on the root element are considered.
   # This allows to configure all namespace declarations to parse the XML document.
   #
   # Example:
@@ -121,9 +121,7 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
       end
       doc.remove_namespaces! if @remove_namespaces
       @xpath.each do |xpath_src, xpath_dest|
-        
         nodeset = @namespaces.empty? ? doc.xpath(xpath_src) : doc.xpath(xpath_src, @namespaces)
-
 
         # If asking xpath for a String, like "name(/*)", we get back a
         # String instead of a NodeSet.  We normalize that here.
