@@ -31,6 +31,36 @@ describe LogStash::Filters::Xml do
       insist { subject["data"]} == {"key1" => [{"key2" => ["value"]}]}
     end
 
+    # parse xml in single item array
+    sample("raw" => ["<foo bar=\"baz\"/>"]) do
+      insist { subject["tags"] }.nil?
+      insist { subject["data"]} == {"bar" => "baz"}
+    end
+
+    # fail in multi items array
+    sample("raw" => ["<foo bar=\"baz\"/>", "jojoba"]) do
+      insist { subject["tags"] }.include?("_xmlparsefailure")
+      insist { subject["data"]} == nil
+    end
+
+    # fail in empty array
+    sample("raw" => []) do
+      insist { subject["tags"] }.include?("_xmlparsefailure")
+      insist { subject["data"]} == nil
+    end
+
+    # fail for non string field
+    sample("raw" => {"foo" => "bar"}) do
+      insist { subject["tags"] }.include?("_xmlparsefailure")
+      insist { subject["data"]} == nil
+    end
+
+    # fail for non string single item array
+    sample("raw" => [{"foo" => "bar"}]) do
+      insist { subject["tags"] }.include?("_xmlparsefailure")
+      insist { subject["data"]} == nil
+    end
+
     #From bad xml
     sample("raw" => '<foo /') do
       insist { subject["tags"] }.include?("_xmlparsefailure")
@@ -206,7 +236,7 @@ describe LogStash::Filters::Xml do
         insist { subject["xpath_field"] } == ["<h:div>Content</h:div>"]
       end
   end
-  
+
   describe "parse including namespaces declarations on child" do
       config <<-CONFIG
       filter {

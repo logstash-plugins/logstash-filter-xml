@@ -62,7 +62,7 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
   # field as described above. Setting this to false will prevent that.
   config :store_xml, :validate => :boolean, :default => true
 
-  # By default only namespaces declarations on the root element are considered. 
+  # By default only namespaces declarations on the root element are considered.
   # This allows to configure all namespace declarations to parse the XML document.
   #
   # Example:
@@ -83,47 +83,52 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
   # Of course, if the document had nodes with the same names but different namespaces, they will now be ambiguous.
   config :remove_namespaces, :validate => :boolean, :default => false
 
-  public
+  XMLPARSEFAILURE_TAG = "_xmlparsefailure"
+
   def register
     require "nokogiri"
     require "xmlsimple"
+  end
 
-  end # def register
-
-  public
   def filter(event)
-    
     matched = false
 
-    @logger.debug("Running xml filter", :event => event)
-
-    return unless event.include?(@source)
+    @logger.debug? && @logger.debug("Running xml filter", :event => event)
 
     value = event[@source]
+    return unless value
 
-    if value.is_a?(Array) && value.length > 1
-      @logger.warn("XML filter only works on fields of length 1",
-                   :source => @source, :value => value)
+    if value.is_a?(Array)
+      if value.length != 1
+        event.tag(XMLPARSEFAILURE_TAG)
+        @logger.warn("XML filter expects single item array", :source => @source, :value => value)
+        return
+      end
+
+      value = value.first
+    end
+
+    unless value.is_a?(String)
+      event.tag(XMLPARSEFAILURE_TAG)
+      @logger.warn("XML filter expects a string but received a #{value.class}", :source => @source, :value => value)
       return
     end
 
     # Do nothing with an empty string.
-    return if value.strip.length == 0
-        
+    return if value.strip.empty?
+
     if @xpath
       begin
         doc = Nokogiri::XML(value, nil, value.encoding.to_s)
       rescue => e
-        event.tag("_xmlparsefailure")
-        @logger.warn("Trouble parsing xml", :source => @source, :value => value,
-                     :exception => e, :backtrace => e.backtrace)
+        event.tag(XMLPARSEFAILURE_TAG)
+        @logger.warn("Error parsing xml", :source => @source, :value => value, :exception => e, :backtrace => e.backtrace)
         return
       end
       doc.remove_namespaces! if @remove_namespaces
-      @xpath.each do |xpath_src, xpath_dest|
-        
-        nodeset = @namespaces.empty? ? doc.xpath(xpath_src) : doc.xpath(xpath_src, @namespaces)
 
+      @xpath.each do |xpath_src, xpath_dest|
+        nodeset = @namespaces.empty? ? doc.xpath(xpath_src) : doc.xpath(xpath_src, @namespaces)
 
         # If asking xpath for a String, like "name(/*)", we get back a
         # String instead of a NodeSet.  We normalize that here.
@@ -131,32 +136,39 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
 
         normalized_nodeset.each do |value|
           # some XPath functions return empty arrays as string
-          if value.is_a?(Array)
-            return if value.length == 0
-          end
+          # TODO: (colin) the return statement here feels like a bug and should probably be a next ?
+          return if value.is_a?(Array) && value.length == 0
 
-          unless value.nil?
+          if value
             matched = true
-            event[xpath_dest] ||= []
-            event[xpath_dest] << value.to_s
+            # TODO: (colin) this can probably be optimized to avoid the Event get/set at every loop iteration anf
+            # the array should probably be created once, filled in the loop and set at after the loop but the return
+            # statement above screws this strategy and is likely a bug anyway so I will not touch this until I can
+            # deep a big deeper and verify there is a sufficient test harness to refactor this.
+            data = event[xpath_dest] || []
+            data << value.to_s
+            event[xpath_dest] = data
+
+            # do not use the following construct to set the event, we cannot assume anymore that the field values are in-place mutable
+            # event[xpath_dest] ||= []
+            # event[xpath_dest] << value.to_s
           end
-        end # XPath.each
-      end # @xpath.each
-    end # if @xpath
+        end
+      end
+    end
 
     if @store_xml
       begin
         event[@target] = XmlSimple.xml_in(value)
         matched = true
       rescue => e
-        event.tag("_xmlparsefailure")
-        @logger.warn("Trouble parsing xml with XmlSimple", :source => @source,
-                     :value => value, :exception => e, :backtrace => e.backtrace)
+        event.tag(XMLPARSEFAILURE_TAG)
+        @logger.warn("Error parsing xml with XmlSimple", :source => @source, :value => value, :exception => e, :backtrace => e.backtrace)
         return
       end
-    end # if @store_xml
+    end
 
     filter_matched(event) if matched
-    @logger.debug("Event after xml filter", :event => event)
-  end # def filter
-end # class LogStash::Filters::Xml
+    @logger.debug? && @logger.debug("Event after xml filter", :event => event)
+  end
+end
