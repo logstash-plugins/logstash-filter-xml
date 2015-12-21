@@ -83,7 +83,27 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
   # Of course, if the document had nodes with the same names but different namespaces, they will now be ambiguous.
   config :remove_namespaces, :validate => :boolean, :default => false
 
+  # By default the filter will not try to validate the xml
+  config :validate_xml, :validate => :boolean, :default => false
+
+  # By default the filter will try to validate against a XSD
+  # Example:
+  #
+  # [source,ruby]
+  # filter {
+  #   xml {
+  #     validate_xml => true
+  #     validation => {
+  #       "type" => "SCHEMA"
+  #       "source" => http://www.w3.org/1999/xhtml"
+  #     }
+  #   }
+  # }
+  #
+  config :validation, :validate => :hash, :default => {}
+
   XMLPARSEFAILURE_TAG = "_xmlparsefailure"
+  XMLVALIDATIONFAILURE_TAG = "_xmlvalidationfailure"
 
   def register
     require "nokogiri"
@@ -165,6 +185,27 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
         event.tag(XMLPARSEFAILURE_TAG)
         @logger.warn("Error parsing xml with XmlSimple", :source => @source, :value => value, :exception => e, :backtrace => e.backtrace)
         return
+      end
+    end
+
+    if @validate_xml
+      begin
+        doc = Nokogiri::XML(value, nil, value.encoding.to_s)
+      rescue => e
+        event.tag(XMLPARSEFAILURE_TAG)
+        @logger.warn("Error parsing xml", :source => @source, :value => value, :exception => e, :backtrace => e.backtrace)
+        return
+      end
+      case @validator.type
+        when "SCHEMA"
+          schema = Nokogiri::XML::Schema(File.open(@validator.file))
+        when "RelaxNG"
+          schema = Nokogiri::XML::RelaxNG(File.open(@validator.file))
+      end
+      errors = schema.validate(doc)
+      if errors.size>0
+        event.tag(XMLVALIDATIONFAILURE_TAG)
+        event["errors"] = errors
       end
     end
 
