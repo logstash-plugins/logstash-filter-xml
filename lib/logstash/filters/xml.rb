@@ -159,7 +159,8 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
 
     if @store_xml
       begin
-        event[@target] = XmlSimple.xml_in(value)
+        xs = XmlSimple.new({ 'SuppressEmpty' => true })
+        event[@target] = xs.xml_in(value)
         matched = true
       rescue => e
         event.tag(XMLPARSEFAILURE_TAG)
