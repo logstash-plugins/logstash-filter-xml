@@ -173,12 +173,12 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
 
     if @store_xml
       begin
-	xs = if @suppress_empty then 
-	  XmlSimple.new({ 'SuppressEmpty' => true }) 
-	else 
+        xs = if @suppress_empty then 
+          XmlSimple.new({ 'SuppressEmpty' => true }) 
+        else
           XmlSimple.new() 
-	end
-	
+        end
+
         event[@target] = xs.xml_in(value)
         matched = true
       rescue => e

@@ -294,7 +294,7 @@ describe LogStash::Filters::Xml do
       xml {
         source => "xmldata"
         target => "data"
-	suppress_empty => true
+        suppress_empty => true
       }
     }
     CONFIG
