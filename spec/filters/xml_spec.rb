@@ -272,4 +272,36 @@ describe LogStash::Filters::Xml do
     end
   end
 
+  describe "parse xml with empty elemnts outputting empty hash" do
+    config <<-CONFIG
+    filter {
+      xml {
+        source => "xmldata"
+        target => "data"
+      }
+    }
+    CONFIG
+
+    sample("xmldata" => '<foo><key>value1</key><key></key></foo>') do
+      insist { subject["tags"] }.nil?
+      insist { subject["data"]} == {"key" => ["value1", {}]}
+    end
+  end
+
+  describe "parse xml using suppress_empty flag set to true so that empty elemnts are not included in the output" do
+    config <<-CONFIG
+    filter {
+      xml {
+        source => "xmldata"
+        target => "data"
+	suppress_empty => true
+      }
+    }
+    CONFIG
+
+    sample("xmldata" => '<foo><key>value1</key><key></key></foo>') do
+      insist { subject["tags"] }.nil?
+      insist { subject["data"]} == {"key" => ["value1"]}
+    end
+  end
 end
