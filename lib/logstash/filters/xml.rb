@@ -92,6 +92,15 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
   def register
     require "nokogiri"
     require "xmlsimple"
+
+    if @store_xml && (!@target || @target.empty?)
+      raise LogStash::ConfigurationError, I18n.t(
+        "logstash.agent.configuration.invalid_plugin_register",
+        :plugin => "filter",
+        :type => "xml",
+        :error => "When the 'store_xml' configuration option is true, 'target' must also be set"
+      )
+    end
   end
 
   def filter(event)
