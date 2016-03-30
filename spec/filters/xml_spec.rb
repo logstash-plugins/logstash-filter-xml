@@ -209,6 +209,7 @@ describe LogStash::Filters::Xml do
         source => "xmldata"
         xpath => [ "/foo/h:div", "xpath_field" ]
         remove_namespaces => false
+        store_xml => false
       }
     }
     CONFIG
@@ -227,6 +228,7 @@ describe LogStash::Filters::Xml do
           xpath => [ "/foo/h:div", "xpath_field" ]
           namespaces => {"h" => "http://www.w3.org/TR/html4/"}
           remove_namespaces => false
+          store_xml => false
         }
       }
       CONFIG
@@ -245,6 +247,7 @@ describe LogStash::Filters::Xml do
           xpath => [ "/foo/h:div", "xpath_field" ]
           namespaces => {"h" => "http://www.w3.org/TR/html4/"}
           remove_namespaces => false
+          store_xml => false
         }
       }
       CONFIG
@@ -262,6 +265,7 @@ describe LogStash::Filters::Xml do
         source => "xmldata"
         xpath => [ "/foo/div", "xpath_field" ]
         remove_namespaces => true
+        store_xml => false
       }
     }
     CONFIG
@@ -303,6 +307,21 @@ describe LogStash::Filters::Xml do
     # Single value
     sample("xmldata" => '<foo><bar>Content</bar></foo>') do
       insist { subject.get("parseddata") } == { "bar" => "Content" }
+    end
+  end
+
+  describe "plugin registration" do
+    config <<-CONFIG
+    filter {
+      xml {
+        xmldata => "message"
+        store_xml => true
+      }
+    }
+    CONFIG
+
+    sample("xmldata" => "<foo>random message</foo>") do
+      insist { subject }.raises(LogStash::ConfigurationError)
     end
   end
 end
