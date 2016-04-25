@@ -62,6 +62,10 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
   # field as described above. Setting this to false will prevent that.
   config :store_xml, :validate => :boolean, :default => true
 
+  # By default the filter will force single elements to be arrays. Setting this to 
+  # false will prevent storing single elements in arrays.
+  config :force_array, :validate => :boolean, :default => true
+
   # By default only namespaces declarations on the root element are considered.
   # This allows to configure all namespace declarations to parse the XML document.
   #
@@ -159,7 +163,7 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
 
     if @store_xml
       begin
-        event[@target] = XmlSimple.xml_in(value)
+        event[@target] = XmlSimple.xml_in(value, "ForceArray" => @force_array)
         matched = true
       rescue => e
         event.tag(XMLPARSEFAILURE_TAG)
