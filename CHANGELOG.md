@@ -1,3 +1,5 @@
+# 2.1.4
+  - Added setting to disable forcing single values to be added in arrays. Ref: https://github.com/logstash-plugins/logstash-filter-xml/pull/28.
 # 2.1.3
   - Depend on logstash-core-plugin-api instead of logstash-core, removing the need to mass update plugins on major releases of logstash
 # 2.1.2
