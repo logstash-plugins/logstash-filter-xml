@@ -99,7 +99,7 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
 
     @logger.debug? && @logger.debug("Running xml filter", :event => event)
 
-    value = event[@source]
+    value = event.get(@source)
     return unless value
 
     if value.is_a?(Array)
@@ -149,13 +149,9 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
             # the array should probably be created once, filled in the loop and set at after the loop but the return
             # statement above screws this strategy and is likely a bug anyway so I will not touch this until I can
             # deep a big deeper and verify there is a sufficient test harness to refactor this.
-            data = event[xpath_dest] || []
+            data = event.get(xpath_dest) || []
             data << value.to_s
-            event[xpath_dest] = data
-
-            # do not use the following construct to set the event, we cannot assume anymore that the field values are in-place mutable
-            # event[xpath_dest] ||= []
-            # event[xpath_dest] << value.to_s
+            event.set(xpath_dest, data)
           end
         end
       end
@@ -163,7 +159,7 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
 
     if @store_xml
       begin
-        event[@target] = XmlSimple.xml_in(value, "ForceArray" => @force_array)
+        event.set(@target, XmlSimple.xml_in(value, "ForceArray" => @force_array))
         matched = true
       rescue => e
         event.tag(XMLPARSEFAILURE_TAG)

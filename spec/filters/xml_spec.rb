@@ -15,55 +15,55 @@ describe LogStash::Filters::Xml do
     CONFIG
 
     sample("raw" => '<foo key="value"/>') do
-      insist { subject["tags"] }.nil?
-      insist { subject["data"]} == {"key" => "value"}
+      insist { subject.get("tags") }.nil?
+      insist { subject.get("data")} == {"key" => "value"}
     end
 
     #From parse xml with array as a value
     sample("raw" => '<foo><key>value1</key><key>value2</key></foo>') do
-      insist { subject["tags"] }.nil?
-      insist { subject["data"]} == {"key" => ["value1", "value2"]}
+      insist { subject.get("tags") }.nil?
+      insist { subject.get("data")} == {"key" => ["value1", "value2"]}
     end
 
     #From parse xml with hash as a value
     sample("raw" => '<foo><key1><key2>value</key2></key1></foo>') do
-      insist { subject["tags"] }.nil?
-      insist { subject["data"]} == {"key1" => [{"key2" => ["value"]}]}
+      insist { subject.get("tags") }.nil?
+      insist { subject.get("data")} == {"key1" => [{"key2" => ["value"]}]}
     end
 
     # parse xml in single item array
     sample("raw" => ["<foo bar=\"baz\"/>"]) do
-      insist { subject["tags"] }.nil?
-      insist { subject["data"]} == {"bar" => "baz"}
+      insist { subject.get("tags") }.nil?
+      insist { subject.get("data")} == {"bar" => "baz"}
     end
 
     # fail in multi items array
     sample("raw" => ["<foo bar=\"baz\"/>", "jojoba"]) do
-      insist { subject["tags"] }.include?("_xmlparsefailure")
-      insist { subject["data"]} == nil
+      insist { subject.get("tags") }.include?("_xmlparsefailure")
+      insist { subject.get("data")} == nil
     end
 
     # fail in empty array
     sample("raw" => []) do
-      insist { subject["tags"] }.include?("_xmlparsefailure")
-      insist { subject["data"]} == nil
+      insist { subject.get("tags") }.include?("_xmlparsefailure")
+      insist { subject.get("data")} == nil
     end
 
     # fail for non string field
     sample("raw" => {"foo" => "bar"}) do
-      insist { subject["tags"] }.include?("_xmlparsefailure")
-      insist { subject["data"]} == nil
+      insist { subject.get("tags") }.include?("_xmlparsefailure")
+      insist { subject.get("data")} == nil
     end
 
     # fail for non string single item array
     sample("raw" => [{"foo" => "bar"}]) do
-      insist { subject["tags"] }.include?("_xmlparsefailure")
-      insist { subject["data"]} == nil
+      insist { subject.get("tags") }.include?("_xmlparsefailure")
+      insist { subject.get("data")} == nil
     end
 
     #From bad xml
     sample("raw" => '<foo /') do
-      insist { subject["tags"] }.include?("_xmlparsefailure")
+      insist { subject.get("tags") }.include?("_xmlparsefailure")
     end
   end
 
@@ -79,8 +79,8 @@ describe LogStash::Filters::Xml do
     CONFIG
 
     sample("raw" => '<foo key="value"/>') do
-      insist { subject["tags"] }.nil?
-      insist { subject["data"]} == nil
+      insist { subject.get("tags") }.nil?
+      insist { subject.get("data")} == nil
     end
   end
 
@@ -97,14 +97,14 @@ describe LogStash::Filters::Xml do
 
     # Single value
     sample("raw" => '<foo><key>value</key></foo>') do
-      insist { subject["tags"] }.nil?
-      insist { subject["xpath_field"]} == ["value"]
+      insist { subject.get("tags") }.nil?
+      insist { subject.get("xpath_field")} == ["value"]
     end
 
     #Multiple values
     sample("raw" => '<foo><key>value1</key><key>value2</key></foo>') do
-      insist { subject["tags"] }.nil?
-      insist { subject["xpath_field"]} == ["value1","value2"]
+      insist { subject.get("tags") }.nil?
+      insist { subject.get("xpath_field")} == ["value1","value2"]
     end
   end
 
@@ -121,25 +121,25 @@ describe LogStash::Filters::Xml do
     CONFIG
 
     sample("xmldata" => '<foo key="value"/>') do
-      insist { subject["tags"] }.nil?
-      insist { subject["data"]} == {"key" => "value"}
+      insist { subject.get("tags") }.nil?
+      insist { subject.get("data") } == {"key" => "value"}
     end
 
     #From parse xml with array as a value
     sample("xmldata" => '<foo><key>value1</key><key>value2</key></foo>') do
-      insist { subject["tags"] }.nil?
-      insist { subject["data"]} == {"key" => ["value1", "value2"]}
+      insist { subject.get("tags") }.nil?
+      insist { subject.get("data") } == {"key" => ["value1", "value2"]}
     end
 
     #From parse xml with hash as a value
     sample("xmldata" => '<foo><key1><key2>value</key2></key1></foo>') do
-      insist { subject["tags"] }.nil?
-      insist { subject["data"]} == {"key1" => [{"key2" => ["value"]}]}
+      insist { subject.get("tags") }.nil?
+      insist { subject.get("data") } == {"key1" => [{"key2" => ["value"]}]}
     end
 
     #From bad xml
     sample("xmldata" => '<foo /') do
-      insist { subject["tags"] }.include?("_xmlparsefailure")
+      insist { subject.get("tags") }.include?("_xmlparsefailure")
     end
   end
 
@@ -155,8 +155,8 @@ describe LogStash::Filters::Xml do
     CONFIG
 
     sample("xmldata" => '<foo key="value"/>') do
-      insist { subject["tags"] }.nil?
-      insist { subject["data"]} == nil
+      insist { subject.get("tags") }.nil?
+      insist { subject.get("data")} == nil
     end
   end
 
@@ -173,14 +173,14 @@ describe LogStash::Filters::Xml do
 
     # Single value
     sample("xmldata" => '<foo><key>value</key></foo>') do
-      insist { subject["tags"] }.nil?
-      insist { subject["xpath_field"]} == ["value"]
+      insist { subject.get("tags") }.nil?
+      insist { subject.get("xpath_field") } == ["value"]
     end
 
     #Multiple values
     sample("xmldata" => '<foo><key>value1</key><key>value2</key></foo>') do
-      insist { subject["tags"] }.nil?
-      insist { subject["xpath_field"]} == ["value1","value2"]
+      insist { subject.get("tags") }.nil?
+      insist { subject.get("xpath_field") } == ["value1","value2"]
     end
   end
 
@@ -197,8 +197,8 @@ describe LogStash::Filters::Xml do
 
     # Single value
     sample("xmldata" => '<foo><key>Français</key></foo>') do
-      insist { subject["tags"] }.nil?
-      insist { subject["xpath_field"]} == ["Français"]
+      insist { subject.get("tags") }.nil?
+      insist { subject.get("xpath_field")} == ["Français"]
     end
   end
 
@@ -215,7 +215,7 @@ describe LogStash::Filters::Xml do
 
     # Single value
     sample("xmldata" => '<foo xmlns:h="http://www.w3.org/TR/html4/"><h:div>Content</h:div></foo>') do
-      insist { subject["xpath_field"] } == ["<h:div>Content</h:div>"]
+      insist { subject.get("xpath_field") } == ["<h:div>Content</h:div>"]
     end
   end
 
@@ -233,7 +233,7 @@ describe LogStash::Filters::Xml do
 
       # Single value
       sample("xmldata" => '<foo xmlns:h="http://www.w3.org/TR/html4/"><h:div>Content</h:div></foo>') do
-        insist { subject["xpath_field"] } == ["<h:div>Content</h:div>"]
+        insist { subject.get("xpath_field") } == ["<h:div>Content</h:div>"]
       end
   end
 
@@ -251,7 +251,7 @@ describe LogStash::Filters::Xml do
 
       # Single value
       sample("xmldata" => '<foo><h:div xmlns:h="http://www.w3.org/TR/html4/">Content</h:div></foo>') do
-        insist { subject["xpath_field"] } == ["<h:div xmlns:h=\"http://www.w3.org/TR/html4/\">Content</h:div>"]
+        insist { subject.get("xpath_field") } == ["<h:div xmlns:h=\"http://www.w3.org/TR/html4/\">Content</h:div>"]
       end
   end
 
@@ -268,7 +268,7 @@ describe LogStash::Filters::Xml do
 
     # Single value
     sample("xmldata" => '<foo xmlns:h="http://www.w3.org/TR/html4/"><h:div>Content</h:div></foo>') do
-      insist { subject["xpath_field"] } == ["<div>Content</div>"]
+      insist { subject.get("xpath_field") } == ["<div>Content</div>"]
     end
   end
 
@@ -285,7 +285,7 @@ describe LogStash::Filters::Xml do
 
     # Single value
     sample("xmldata" => '<foo><bar>Content</bar></foo>') do
-      insist { subject["parseddata"] } == { "bar" => ["Content"] }
+      insist { subject.get("parseddata") } == { "bar" => ["Content"] }
     end
   end
 
@@ -302,8 +302,7 @@ describe LogStash::Filters::Xml do
 
     # Single value
     sample("xmldata" => '<foo><bar>Content</bar></foo>') do
-      insist { subject["parseddata"] } == { "bar" => "Content" }
+      insist { subject.get("parseddata") } == { "bar" => "Content" }
     end
   end
-
 end
