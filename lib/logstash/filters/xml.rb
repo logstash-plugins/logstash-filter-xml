@@ -87,11 +87,40 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
   # Of course, if the document had nodes with the same names but different namespaces, they will now be ambiguous.
   config :remove_namespaces, :validate => :boolean, :default => false
 
+  # By default the filter will not try to validate the xml
+  config :validate_xml, :validate => :boolean, :default => false
+
+  # By default the filter will try to validate against a XSD
+  # Example:
+  #
+  # [source,ruby]
+  # filter {
+  #   xml {
+  #     validate_xml => true
+  #     validation => {
+  #       "type" => "xsd"
+  #       "file" => "path/to/file"
+  #     }
+  #   }
+  # }
+  #
+  config :validation, :validate => :hash, :default => {}
+
   XMLPARSEFAILURE_TAG = "_xmlparsefailure"
+  XMLVALIDATIONFAILURE_TAG = "_xmlvalidationfailure"
 
   def register
     require "nokogiri"
     require "xmlsimple"
+    if @validate_xml
+      case @validation['type']
+        when "rng"
+          @schema = Nokogiri::XML::RelaxNG(File.open(@validation['file']))
+        else
+          @schema = Nokogiri::XML::Schema(File.open(@validation['file']))
+      end
+    end
+
   end
 
   def filter(event)
@@ -172,6 +201,27 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
       end
     end
 
+    if @validate_xml
+      begin
+        doc = Nokogiri::XML(value, nil, value.encoding.to_s)
+        if @schema
+          errors = @schema.validate(doc)
+          if errors.size>0
+            event.tag(XMLVALIDATIONFAILURE_TAG)
+            event["validated"] = false
+            errors = errors.map {|a| a.to_s}
+            event["errors"] = errors * "\n"
+          else
+            event["validated"] = true
+          end
+        end
+        matched = true
+      rescue => e
+        event.tag(XMLPARSEFAILURE_TAG)
+        @logger.warn("Error parsing xml with Nokogiri::XML", :source => @source, :value => value, :exception => e, :backtrace => e.backtrace)
+        return
+      end
+    end
     filter_matched(event) if matched
     @logger.debug? && @logger.debug("Event after xml filter", :event => event)
   end
