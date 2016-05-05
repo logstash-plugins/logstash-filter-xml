@@ -306,4 +306,97 @@ describe LogStash::Filters::Xml do
     end
   end
 
+  describe "validate XML using XSD" do
+    config <<-CONFIG
+    filter {
+      xml {
+        source => "xmldata"
+        target => "parseddata"
+        validate_xml => true
+        validation => {
+          type => "xsd"
+          file => "spec/book.xsd"
+        }
+      }
+    }
+    CONFIG
+
+    # Single value
+    sample('xmldata' => '<book>
+                            <page>This is page one.</page>
+                            <page>This is page two.</page>
+                         </book>'
+    ) do
+      insist { subject['validated'] } == true
+    end
+  end
+
+  describe "validate wrong XML using XSD" do
+    config <<-CONFIG
+    filter {
+      xml {
+        source => "xmldata"
+        target => "parseddata"
+        validate_xml => true
+        validation => {
+          type => "xsd"
+          file => "spec/book.xsd"
+        }
+      }
+    }
+    CONFIG
+
+    # Single value
+    sample('xmldata' => '<book></book>'
+    ) do
+      insist { subject['validated'] } == false
+    end
+  end
+
+  describe "validate XML using RelaxNG" do
+    config <<-CONFIG
+    filter {
+      xml {
+        source => "xmldata"
+        target => "parseddata"
+        validate_xml => true
+        validation => {
+          type => "rng"
+          file => "spec/book.rng"
+        }
+      }
+    }
+    CONFIG
+
+    # Single value
+    sample('xmldata' => '<book>
+                            <page>This is page one.</page>
+                            <page>This is page two.</page>
+                         </book>'
+    ) do
+      insist { subject['validated'] } == true
+    end
+  end
+
+  describe "validate wrong XML using RelaxNG" do
+    config <<-CONFIG
+    filter {
+      xml {
+        source => "xmldata"
+        target => "parseddata"
+        validate_xml => true
+        validation => {
+          type => "rng"
+          file => "spec/book.rng"
+        }
+      }
+    }
+    CONFIG
+
+    # Single value
+    sample('xmldata' => '<book></book>'
+    ) do
+      insist { subject['validated'] } == false
+    end
+  end
 end

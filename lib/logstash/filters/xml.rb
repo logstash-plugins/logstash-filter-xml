@@ -98,8 +98,8 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
   #   xml {
   #     validate_xml => true
   #     validation => {
-  #       "type" => "SCHEMA"
-  #       "source" => http://www.w3.org/1999/xhtml"
+  #       "type" => "xsd"
+  #       "file" => "path/to/file"
   #     }
   #   }
   # }
@@ -112,6 +112,15 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
   def register
     require "nokogiri"
     require "xmlsimple"
+    if @validate_xml
+      case @validation['type']
+        when "rng"
+          @schema = Nokogiri::XML::RelaxNG(File.open(@validation['file']))
+        else
+          @schema = Nokogiri::XML::Schema(File.open(@validation['file']))
+      end
+    end
+
   end
 
   def filter(event)
@@ -195,24 +204,24 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
     if @validate_xml
       begin
         doc = Nokogiri::XML(value, nil, value.encoding.to_s)
+        if @schema
+          errors = @schema.validate(doc)
+          if errors.size>0
+            event.tag(XMLVALIDATIONFAILURE_TAG)
+            event["validated"] = false
+            errors = errors.map {|a| a.to_s}
+            event["errors"] = errors * "\n"
+          else
+            event["validated"] = true
+          end
+        end
+        matched = true
       rescue => e
         event.tag(XMLPARSEFAILURE_TAG)
-        @logger.warn("Error parsing xml", :source => @source, :value => value, :exception => e, :backtrace => e.backtrace)
+        @logger.warn("Error parsing xml with Nokogiri::XML", :source => @source, :value => value, :exception => e, :backtrace => e.backtrace)
         return
       end
-      case @validator.type
-        when "SCHEMA"
-          schema = Nokogiri::XML::Schema(File.open(@validator.file))
-        when "RelaxNG"
-          schema = Nokogiri::XML::RelaxNG(File.open(@validator.file))
-      end
-      errors = schema.validate(doc)
-      if errors.size>0
-        event.tag(XMLVALIDATIONFAILURE_TAG)
-        event["errors"] = errors
-      end
     end
-
     filter_matched(event) if matched
     @logger.debug? && @logger.debug("Event after xml filter", :event => event)
   end
