@@ -272,4 +272,38 @@ describe LogStash::Filters::Xml do
     end
   end
 
+
+  describe "parse with forcing array (Default)" do
+    config <<-CONFIG
+    filter {
+      xml {
+        source => "xmldata"
+        target => "parseddata"
+      }
+    }
+    CONFIG
+
+    # Single value
+    sample("xmldata" => '<foo><bar>Content</bar></foo>') do
+      insist { subject["parseddata"] } == { "bar" => ["Content"] }
+    end
+  end
+
+  describe "parse disabling forcing array" do
+    config <<-CONFIG
+    filter {
+      xml {
+        source => "xmldata"
+        target => "parseddata"
+        force_array => false
+      }
+    }
+    CONFIG
+
+    # Single value
+    sample("xmldata" => '<foo><bar>Content</bar></foo>') do
+      insist { subject["parseddata"] } == { "bar" => "Content" }
+    end
+  end
+
 end
