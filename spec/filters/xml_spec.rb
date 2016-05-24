@@ -342,4 +342,41 @@ describe LogStash::Filters::Xml do
       insist { subject.get("data") } == {"key" => ["value1"]}
     end
   end
+
+  context "Using force content option" do
+    describe "force_content => false" do
+      config <<-CONFIG
+      filter {
+        xml {
+          source => "xmldata"
+          target => "data"
+          force_array => false
+          force_content => false
+        }
+      }
+      CONFIG
+
+      sample("xmldata" => '<opt><x>text1</x><y a="2">text2</y></opt>') do
+        insist { subject.get("tags") }.nil?
+        insist { subject.get("data") } ==  { 'x' => 'text1', 'y' => { 'a' => '2', 'content' => 'text2' } }
+      end
+    end
+    describe "force_content => true" do
+      config <<-CONFIG
+      filter {
+        xml {
+          source => "xmldata"
+          target => "data"
+          force_array => false
+          force_content => true
+        }
+      }
+      CONFIG
+
+      sample("xmldata" => '<opt><x>text1</x><y a="2">text2</y></opt>') do
+        insist { subject.get("tags") }.nil?
+        insist { subject.get("data") } ==  { 'x' => { 'content' => 'text1' }, 'y' => { 'a' => '2', 'content' => 'text2' } }
+      end
+    end
+  end
 end
