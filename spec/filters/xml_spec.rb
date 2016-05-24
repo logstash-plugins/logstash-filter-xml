@@ -310,6 +310,79 @@ describe LogStash::Filters::Xml do
     end
   end
 
+  context "Using suppress_empty option" do
+    describe "suppress_empty => false" do
+      config <<-CONFIG
+      filter {
+        xml {
+          source => "xmldata"
+          target => "data"
+          suppress_empty => false
+        }
+      }
+      CONFIG
+
+      sample("xmldata" => '<foo><key>value1</key><key></key></foo>') do
+        insist { subject["tags"] }.nil?
+        insist { subject["data"] } == {"key" => ["value1", {}]}
+      end
+    end
+
+    describe "suppress_empty => true" do
+      config <<-CONFIG
+      filter {
+        xml {
+          source => "xmldata"
+          target => "data"
+          suppress_empty => true
+        }
+      }
+      CONFIG
+
+      sample("xmldata" => '<foo><key>value1</key><key></key></foo>') do
+        insist { subject["tags"] }.nil?
+        insist { subject["data"] } == {"key" => ["value1"]}
+      end
+    end
+  end
+
+  context "Using force content option" do
+    describe "force_content => false" do
+      config <<-CONFIG
+      filter {
+        xml {
+          source => "xmldata"
+          target => "data"
+          force_array => false
+          force_content => false
+        }
+      }
+      CONFIG
+
+      sample("xmldata" => '<opt><x>text1</x><y a="2">text2</y></opt>') do
+        insist { subject["tags"] }.nil?
+        insist { subject["data"] } ==  { 'x' => 'text1', 'y' => { 'a' => '2', 'content' => 'text2' } }
+      end
+    end
+    describe "force_content => true" do
+      config <<-CONFIG
+      filter {
+        xml {
+          source => "xmldata"
+          target => "data"
+          force_array => false
+          force_content => true
+        }
+      }
+      CONFIG
+
+      sample("xmldata" => '<opt><x>text1</x><y a="2">text2</y></opt>') do
+        insist { subject["tags"] }.nil?
+        insist { subject["data"] } ==  { 'x' => { 'content' => 'text1' }, 'y' => { 'a' => '2', 'content' => 'text2' } }
+      end
+    end
+  end
+
   describe "plugin registration" do
     config <<-CONFIG
     filter {

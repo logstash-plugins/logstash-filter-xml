@@ -66,6 +66,11 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
   # false will prevent storing single elements in arrays.
   config :force_array, :validate => :boolean, :default => true
 
+  # By default the filter will expand attributes differently from content inside
+  # of tags. This option allows you to force text content and attributes to always
+  # parse to a hash value.
+  config :force_content, :validate => :boolean, :default => false
+
   # By default only namespaces declarations on the root element are considered.
   # This allows to configure all namespace declarations to parse the XML document.
   #
@@ -86,6 +91,10 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
   # Remove all namespaces from all nodes in the document.
   # Of course, if the document had nodes with the same names but different namespaces, they will now be ambiguous.
   config :remove_namespaces, :validate => :boolean, :default => false
+
+  # By default, empty element will result in an empty hash object
+  # If set to `true`, output nothing if the element is empty..
+  config :suppress_empty, :validate => :boolean, :default => false
 
   XMLPARSEFAILURE_TAG = "_xmlparsefailure"
 
@@ -172,7 +181,9 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
 
     if @store_xml
       begin
-        event[@target] = XmlSimple.xml_in(value, "ForceArray" => @force_array)
+        xml_options = {"ForceArray" => @force_array, "ForceContent" => @force_content}
+        xml_options["SuppressEmpty"] = true if @suppress_empty
+        event[@target] = XmlSimple.xml_in(value, xml_options)
         matched = true
       rescue => e
         event.tag(XMLPARSEFAILURE_TAG)
