@@ -92,19 +92,9 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
   # Of course, if the document had nodes with the same names but different namespaces, they will now be ambiguous.
   config :remove_namespaces, :validate => :boolean, :default => false
 
-  # By default empty xml elements result in an empty hash object.
-  # This allows you to change this behavior to output nothing if the element is empty.
-  #
-  # Example:
-  #
-  # [source,ruby]
-  # filter {
-  #   xml {
-  #     suppress_empty => true
-  #   }
-  # }
-  #
-  config :suppress_empty, :validate => :boolean, :default => false
+  # By default, output nothing if the element is empty.
+  # If set to `false`, empty element will result in an empty hash object.
+  config :suppress_empty, :validate => :boolean, :default => true
 
   XMLPARSEFAILURE_TAG = "_xmlparsefailure"
 

@@ -310,36 +310,39 @@ describe LogStash::Filters::Xml do
     end
   end
 
-  describe "parse xml with empty elemnts outputting empty hash" do
-    config <<-CONFIG
-    filter {
-      xml {
-        source => "xmldata"
-        target => "data"
+  context "Using suppress_empty option" do
+    describe "suppress_empty => false" do
+      config <<-CONFIG
+      filter {
+        xml {
+          source => "xmldata"
+          target => "data"
+          suppress_empty => false
+        }
       }
-    }
-    CONFIG
+      CONFIG
 
-    sample("xmldata" => '<foo><key>value1</key><key></key></foo>') do
-      insist { subject.get("tags") }.nil?
-      insist { subject.get("data") } == {"key" => ["value1", {}]}
+      sample("xmldata" => '<foo><key>value1</key><key></key></foo>') do
+        insist { subject.get("tags") }.nil?
+        insist { subject.get("data") } == {"key" => ["value1", {}]}
+      end
     end
-  end
 
-  describe "parse xml using suppress_empty flag set to true so that empty elemnts are not included in the output" do
-    config <<-CONFIG
-    filter {
-      xml {
-        source => "xmldata"
-        target => "data"
-        suppress_empty => true
+    describe "suppress_empty => true" do
+      config <<-CONFIG
+      filter {
+        xml {
+          source => "xmldata"
+          target => "data"
+          suppress_empty => true
+        }
       }
-    }
-    CONFIG
+      CONFIG
 
-    sample("xmldata" => '<foo><key>value1</key><key></key></foo>') do
-      insist { subject.get("tags") }.nil?
-      insist { subject.get("data") } == {"key" => ["value1"]}
+      sample("xmldata" => '<foo><key>value1</key><key></key></foo>') do
+        insist { subject.get("tags") }.nil?
+        insist { subject.get("data") } == {"key" => ["value1"]}
+      end
     end
   end
 
@@ -377,6 +380,21 @@ describe LogStash::Filters::Xml do
         insist { subject.get("tags") }.nil?
         insist { subject.get("data") } ==  { 'x' => { 'content' => 'text1' }, 'y' => { 'a' => '2', 'content' => 'text2' } }
       end
+    end
+  end
+
+  describe "plugin registration" do
+    config <<-CONFIG
+    filter {
+      xml {
+        xmldata => "message"
+        store_xml => true
+      }
+    }
+    CONFIG
+
+    sample("xmldata" => "<foo>random message</foo>") do
+      insist { subject }.raises(LogStash::ConfigurationError)
     end
   end
 end
