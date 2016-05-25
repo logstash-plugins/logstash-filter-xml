@@ -1,3 +1,11 @@
+## 4.1.0
+ - bugfix: catch xpath-expression syntax error instead of impacting pipeline. Fix #19
+ - bugfix: report xml parsing error when parsing only with xpath and store_xml => false (using Nokogiri internally). Fix #10
+ - config: allow to create xpath-expression from event data using dynamic syntax
+ - config: fail at startup if store_xml => false and no xpath config specified, as the filter would do nothing
+ - internal: do not parse document with Nokogiri when xpath contains no expressions
+ - internal: restructure tests using contexts
+
 ## 4.0.0
   - breaking,config: New configuration `suppress_empty`. Default to true change default behaviour of the plugin in favor of avoiding mapping conflicts when reaching elasticsearch
   - config: New configuration `force_content`. By default the filter expands attributes differently from content in xml elements.

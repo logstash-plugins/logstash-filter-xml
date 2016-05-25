@@ -110,6 +110,15 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
         :error => "When the 'store_xml' configuration option is true, 'target' must also be set"
       )
     end
+
+    if xpath.empty? && !@store_xml
+      raise LogStash::ConfigurationError, I18n.t(
+        "logstash.agent.configuration.invalid_plugin_register",
+        :plugin => "filter",
+        :type => "xml",
+        :error => "When the 'store_xml' configuration option is false, 'xpath' must contains elements"
+      )
+    end
   end
 
   def filter(event)
@@ -139,9 +148,10 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
     # Do nothing with an empty string.
     return if value.strip.empty?
 
-    if @xpath
+    unless @xpath.empty?
       begin
         doc = Nokogiri::XML(value, nil, value.encoding.to_s)
+        raise doc.errors unless doc.errors.empty?
       rescue => e
         event.tag(XMLPARSEFAILURE_TAG)
         @logger.warn("Error parsing xml", :source => @source, :value => value, :exception => e, :backtrace => e.backtrace)
@@ -149,8 +159,16 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
       end
       doc.remove_namespaces! if @remove_namespaces
 
-      @xpath.each do |xpath_src, xpath_dest|
-        nodeset = @namespaces.empty? ? doc.xpath(xpath_src) : doc.xpath(xpath_src, @namespaces)
+      @xpath.each do |xpath_syntax, xpath_dest|
+        xpath_src = event.sprintf(xpath_syntax)
+        begin
+          nodeset = @namespaces.empty? ? doc.xpath(xpath_src) : doc.xpath(xpath_src, @namespaces)
+        rescue Nokogiri::XML::XPath::SyntaxError => e
+            event.tag("_xpathsyntaxfailure")
+            @logger.warn("Trouble parsing the xpath expression", :source => @source, :value => value, :xpath => xpath_src,
+                      :exception => e, :backtrace => e.backtrace)
+            return
+        end
 
         # If asking xpath for a String, like "name(/*)", we get back a
         # String instead of a NodeSet.  We normalize that here.
