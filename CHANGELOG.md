@@ -1,3 +1,6 @@
+## 4.0.1
+  - Relax constraint on logstash-core-plugin-api to >= 1.60 <= 2.99
+
 ## 4.0.0
   - breaking,config: New configuration `suppress_empty`. Default to true change default behaviour of the plugin in favor of avoiding mapping conflicts when reaching elasticsearch
   - config: New configuration `force_content`. By default the filter expands attributes differently from content in xml elements.
