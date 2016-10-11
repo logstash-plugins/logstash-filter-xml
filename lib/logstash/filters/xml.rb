@@ -81,7 +81,7 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
   #   xml {
   #     namespaces => {
   #       "xsl" => "http://www.w3.org/1999/XSL/Transform"
-  #       "xhtml" => http://www.w3.org/1999/xhtml"
+  #       "xhtml" => "http://www.w3.org/1999/xhtml"
   #     }
   #   }
   # }
