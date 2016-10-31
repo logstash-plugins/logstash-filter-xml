@@ -104,7 +104,7 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
 
     if @store_xml && (!@target || @target.empty?)
       raise LogStash::ConfigurationError, I18n.t(
-        "logstash.agent.configuration.invalid_plugin_register",
+        "logstash.runner.configuration.invalid_plugin_register",
         :plugin => "filter",
         :type => "xml",
         :error => "When the 'store_xml' configuration option is true, 'target' must also be set"
