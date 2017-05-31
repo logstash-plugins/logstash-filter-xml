@@ -382,19 +382,4 @@ describe LogStash::Filters::Xml do
       end
     end
   end
-
-  describe "plugin registration" do
-    config <<-CONFIG
-    filter {
-      xml {
-        xmldata => "message"
-        store_xml => true
-      }
-    }
-    CONFIG
-
-    sample("xmldata" => "<foo>random message</foo>") do
-      insist { subject }.raises(LogStash::ConfigurationError)
-    end
-  end
 end
