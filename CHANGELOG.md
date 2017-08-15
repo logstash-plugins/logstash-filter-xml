@@ -1,3 +1,6 @@
+## 4.0.4
+  - Fix some documentation issues
+
 ## 4.0.2
   - Fix a bug that, when the plugin tried to report an invalid configuration, would report the following instead of the real error:
     translation missing: en.logstash.agent.configuration.invalid_plugin_register
