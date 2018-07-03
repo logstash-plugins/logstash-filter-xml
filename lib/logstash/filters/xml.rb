@@ -148,16 +148,16 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
         return
       end
       doc.remove_namespaces! if @remove_namespaces
-      
-      #Initialize resultset upfront
-      data = event.get(xpath_dest) || []
-      
+            
       @xpath.each do |xpath_src, xpath_dest|
         nodeset = @namespaces.empty? ? doc.xpath(xpath_src) : doc.xpath(xpath_src, @namespaces)
 
         # If asking xpath for a String, like "name(/*)", we get back a
         # String instead of a NodeSet.  We normalize that here.
         normalized_nodeset = nodeset.kind_of?(Nokogiri::XML::NodeSet) ? nodeset : [nodeset]
+        
+        # Initialize empty resultset
+        data = event.get(xpath_dest) || []
 
         normalized_nodeset.each do |value|
           # some XPath functions return empty arrays as string
