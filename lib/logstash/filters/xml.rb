@@ -157,7 +157,7 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
         normalized_nodeset = nodeset.kind_of?(Nokogiri::XML::NodeSet) ? nodeset : [nodeset]
         
         # Initialize empty resultset
-        data = event.get(xpath_dest) || []
+        data = []
 
         normalized_nodeset.each do |value|
           # some XPath functions return empty arrays as string
