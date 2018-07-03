@@ -156,21 +156,24 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
         # String instead of a NodeSet.  We normalize that here.
         normalized_nodeset = nodeset.kind_of?(Nokogiri::XML::NodeSet) ? nodeset : [nodeset]
 
+        # Initialize empty resultset
+        data = []
+
         normalized_nodeset.each do |value|
           # some XPath functions return empty arrays as string
-          # TODO: (colin) the return statement here feels like a bug and should probably be a next ?
-          return if value.is_a?(Array) && value.length == 0
+          next if value.is_a?(Array) && value.length == 0
 
           if value
             matched = true
-            # TODO: (colin) this can probably be optimized to avoid the Event get/set at every loop iteration anf
-            # the array should probably be created once, filled in the loop and set at after the loop but the return
-            # statement above screws this strategy and is likely a bug anyway so I will not touch this until I can
-            # deep a big deeper and verify there is a sufficient test harness to refactor this.
-            data = event.get(xpath_dest) || []
             data << value.to_s
-            event.set(xpath_dest, data)
           end
+
+        end
+        # set the destination attribute, if it's an array with a bigger size than one, leave as is. otherwise make it a string. added force_array param to provide same functionality as writing it in an xml target
+        if data.size == 1 && !@force_array
+          event.set(xpath_dest, data[0])
+        else
+          event.set(xpath_dest, data)
         end
       end
     end
