@@ -310,6 +310,26 @@ describe LogStash::Filters::Xml do
     end
   end
 
+  describe "parse disabling forcing with nested elements" do
+    config <<-CONFIG
+    filter {
+      xml {
+        source => "xmldata"
+        store_xml => "false"
+        force_array => "false"
+        xpath => [
+          "/element/field1/text()", "field1"
+        ]
+      }
+    }
+    CONFIG
+
+    # Single value
+    sample("xmldata" => '<element><field1>bbb</field1><field2>789</field2><field3>e3f<field3></element>') do
+      insist { subject.get("field1") } == "bbb"
+    end
+  end
+
   context "Using suppress_empty option" do
     describe "suppress_empty => false" do
       config <<-CONFIG
