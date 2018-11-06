@@ -1,3 +1,6 @@
+## 4.0.6
+  - Fixed force_array behavior with nested elements [#57](https://github.com/logstash-plugins/logstash-filter-xml/pull/57)
+
 ## 4.0.5
   - Update gemspec summary
 
