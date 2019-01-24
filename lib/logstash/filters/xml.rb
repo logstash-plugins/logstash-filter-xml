@@ -173,7 +173,7 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
         if data.size == 1 && !@force_array
           event.set(xpath_dest, data[0])
         else
-          event.set(xpath_dest, data)
+          event.set(xpath_dest, data) unless data.empty?
         end
       end
     end
