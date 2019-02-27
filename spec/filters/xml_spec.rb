@@ -401,5 +401,21 @@ describe LogStash::Filters::Xml do
         insist { subject.get("data") } ==  { 'x' => { 'content' => 'text1' }, 'y' => { 'a' => '2', 'content' => 'text2' } }
       end
     end
+    describe "does not set empty array event on failed xpath" do
+      config <<-CONFIG
+      filter {
+        xml {
+          source => "xmldata"
+          target => "data"
+          xpath => [ "//foo/text()","xpath_field" ]
+        }
+      }
+      CONFIG
+
+      sample("raw" => '<foobar></foobar>') do
+        insist { subject.get("tags") }.nil?
+        insist { subject.get("xpath_field")}.nil?
+      end
+    end
   end
 end
