@@ -1,3 +1,6 @@
+## 4.1.0
+  - Feat: added parser_options for more control over XML parsing [#68](https://github.com/logstash-plugins/logstash-filter-xml/pull/68)
+
 ## 4.0.7
   - Fixed creation of empty arrays when xpath failed [#59](https://github.com/logstash-plugins/logstash-filter-xml/pull/59)
 
