@@ -58,6 +58,13 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
   #
   config :xpath, :validate => :hash, :default => {}
 
+  # Supported XML parsing options are 'strict', 'no_error' and 'no_warning'.
+  # - strict mode turns on strict parsing rules (non-compliant xml will fail)
+  # - no_error and no_warning can be used to suppress errors/warnings
+  config :parse_options, :validate => :string
+  # NOTE: technically we support more but we purposefully do not document those.
+  # e.g. setting "strict|recover" will not turn on strict as they're conflicting
+
   # By default the filter will store the whole parsed XML in the destination
   # field as described above. Setting this to false will prevent that.
   config :store_xml, :validate => :boolean, :default => true
@@ -110,6 +117,7 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
         :error => "When the 'store_xml' configuration option is true, 'target' must also be set"
       )
     end
+    xml_parse_options # validates parse_options => ...
   end
 
   def filter(event)
@@ -141,11 +149,13 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
 
     if @xpath
       begin
-        doc = Nokogiri::XML(value, nil, value.encoding.to_s)
+        doc = Nokogiri::XML::Document.parse(value, nil, value.encoding.to_s, xml_parse_options)
       rescue => e
         event.tag(XMLPARSEFAILURE_TAG)
         @logger.warn("Error parsing xml", :source => @source, :value => value, :exception => e, :backtrace => e.backtrace)
         return
+      else
+        doc.errors.any? && @logger.debug? && @logger.debug("Parsed xml with #{doc.errors.size} errors")
       end
       doc.remove_namespaces! if @remove_namespaces
 
@@ -194,4 +204,26 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
     filter_matched(event) if matched
     @logger.debug? && @logger.debug("Event after xml filter", :event => event)
   end
+
+  private
+
+  def xml_parse_options
+    return Nokogiri::XML::ParseOptions::DEFAULT_XML unless @parse_options # (RECOVER | NONET)
+    @xml_parse_options ||= begin
+      parse_options = @parse_options.split(/,|\|/).map do |opt|
+        name = opt.strip.tr('_', '').upcase
+        if name.empty?
+          nil
+        else
+          begin
+            Nokogiri::XML::ParseOptions.const_get(name)
+          rescue NameError
+            raise LogStash::ConfigurationError, "unsupported parse option: #{opt.inspect}"
+          end
+        end
+      end
+      parse_options.compact.inject(0, :|) # e.g. NOERROR | NOWARNING
+    end
+  end
+
 end
