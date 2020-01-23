@@ -91,13 +91,14 @@ filter {
 [id="plugins-{type}s-{plugin}-parser_options"]
 ===== `parser_options`
 
-* Value type is <<string,string>>
+  * Value type is <<string,string>>
+  * There is no default value for this setting.
 
 Setting XML parser options allows for more control of the parsing process.
 By default the parser is not strict and thus accepts some invalid content.
 Currently supported options are:
 
- - _strict_ - forces the parser to fail early when content is not valid xml
+ - `strict` - forces the parser to fail early instead of accumulating errors when content is not valid xml.
 
 [id="plugins-{type}s-{plugin}-remove_namespaces"]
 ===== `remove_namespaces` 
