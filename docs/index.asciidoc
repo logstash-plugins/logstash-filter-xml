@@ -94,13 +94,10 @@ filter {
 * Value type is <<string,string>>
 
 Setting XML parser options allows for more control of the parsing process.
-By default the parser is non strict and thus accepts some invalid content.
-Multiple options are separated by a comma (e.g. `'strict,no_warning'`),
-currently supported options are:
+By default the parser is not strict and thus accepts some invalid content.
+Currently supported options are:
 
  - _strict_ - forces the parser to fail early when content is not valid xml
- - _no_warning_ - allows to parse content when there are only warnings
- - _no_error_ - allows to parse content on non fatal parser errors
 
 [id="plugins-{type}s-{plugin}-remove_namespaces"]
 ===== `remove_namespaces` 

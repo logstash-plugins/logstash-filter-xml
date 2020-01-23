@@ -449,6 +449,16 @@ describe LogStash::Filters::Xml do
     subject { described_class.new(options) }
     let(:options) { ({ 'source' => 'xmldata', 'store_xml' => false, 'parse_options' => parse_options }) }
 
+    context 'strict (supported option)' do
+      let(:parse_options) { 'strict' }
+
+      it 'registers filter' do
+        subject.register
+        expect( subject.send(:xml_parse_options) ).
+            to eql Nokogiri::XML::ParseOptions::STRICT
+      end
+    end
+
     context 'valid' do
       let(:parse_options) { 'no_error,NOWARNING' }
 
