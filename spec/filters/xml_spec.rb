@@ -418,4 +418,63 @@ describe LogStash::Filters::Xml do
       end
     end
   end
+
+  describe "parsing invalid xml" do
+    subject { described_class.new(options) }
+    let(:options) { ({ 'source' => 'xmldata', 'store_xml' => false }) }
+    let(:xmldata) { "<xml> <sample attr='foo' attr=\"bar\"> <invalid> </sample> </xml>" }
+    let(:event) { LogStash::Event.new(data) }
+    let(:data) { { "xmldata" => xmldata } }
+
+    before { subject.register }
+    after { subject.close }
+
+    it 'does not fail (by default)' do
+      subject.filter(event)
+      expect( event.get("tags") ).to be nil
+    end
+
+    context 'strict option' do
+      let(:options) { super.merge({ 'parse_options' => 'strict' }) }
+
+      it 'does fail parsing' do
+        subject.filter(event)
+        expect( event.get("tags") ).to_not be nil
+        expect( event.get("tags") ).to include '_xmlparsefailure'
+      end
+    end
+  end
+
+  describe "parse_options" do
+    subject { described_class.new(options) }
+    let(:options) { ({ 'source' => 'xmldata', 'store_xml' => false, 'parse_options' => parse_options }) }
+
+    context 'strict (supported option)' do
+      let(:parse_options) { 'strict' }
+
+      it 'registers filter' do
+        subject.register
+        expect( subject.send(:xml_parse_options) ).
+            to eql Nokogiri::XML::ParseOptions::STRICT
+      end
+    end
+
+    context 'valid' do
+      let(:parse_options) { 'no_error,NOWARNING' }
+
+      it 'registers filter' do
+        subject.register
+        expect( subject.send(:xml_parse_options) ).
+            to eql Nokogiri::XML::ParseOptions::NOERROR | Nokogiri::XML::ParseOptions::NOWARNING
+      end
+    end
+
+    context 'invalid' do
+      let(:parse_options) { 'strict,invalid0' }
+
+      it 'fails to register' do
+        expect { subject.register }.to raise_error(LogStash::ConfigurationError, 'unsupported parse option: "invalid0"')
+      end
+    end
+  end
 end
