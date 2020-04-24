@@ -51,10 +51,10 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
   # destination field as an array. As such, multiple matches across
   # multiple source fields will produce duplicate entries in the field.
   #
-  # More on XPath: http://www.w3schools.com/xml/xml_xpath.asp
+  # More on XPath: https://www.w3schools.com/xml/xml_xpath.asp
   #
   # The XPath functions are particularly powerful:
-  # http://www.w3schools.com/xsl/xsl_functions.asp
+  # https://www.w3schools.com/xml/xsl_functions.asp
   #
   config :xpath, :validate => :hash, :default => {}
 
