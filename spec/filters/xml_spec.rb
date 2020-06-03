@@ -446,6 +446,50 @@ describe LogStash::Filters::Xml do
     end
   end
 
+
+  describe 'when an exception is thrown in XML#filter' do
+    let(:logger_stub) { double('Logger').as_null_object }
+    before(:each) do
+      allow_any_instance_of(described_class).to receive(:logger).and_return(logger_stub)
+    end
+
+    subject(:xml_filter_plugin) { described_class.new(options).tap(&:register) }
+    let(:options) { ({ 'source' => 'xmldata', 'store_xml' => true, 'target' => 'decoded' }) }
+    let(:xmldata) { '<xml><sample attr="foo"></sample></xml>' }
+    let(:event) { LogStash::Event.new(data) }
+    let(:data) { { "xmldata" => xmldata } }
+
+    after { xml_filter_plugin.close }
+
+    # In order to test how we handle and propagate exceptions, we inject an
+    # intentional failure when `filter_matched` is called, and parse an XML
+    # that would not otherwise fail.
+    before(:each) do
+      expect(xml_filter_plugin).to receive(:filter_matched) { |_| fail('intentional') }
+    end
+
+    it 'does not propagate the exception' do
+      expect{ xml_filter_plugin.filter(event) }.to_not raise_error
+    end
+
+    it 'emits the event with an error tag' do
+      xml_filter_plugin.filter(event)
+
+      expect(event.get("tags")).to_not be nil
+      expect(event.get('tags')).to include '_xmlparsefailure'
+    end
+
+    it 'logs a helpful message' do
+      xml_filter_plugin.filter(event)
+
+      expect(logger_stub).to have_received(:warn) do |message, metadata|
+        expect(message).to include('XML Parse Error')
+        expect(metadata).to include(:value)
+        expect(metadata).to include(:source)
+      end
+    end
+  end
+
   describe "parse_options" do
     subject { described_class.new(options) }
     let(:options) { ({ 'source' => 'xmldata', 'store_xml' => false, 'parse_options' => parse_options }) }

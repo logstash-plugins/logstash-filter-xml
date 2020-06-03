@@ -203,6 +203,14 @@ class LogStash::Filters::Xml < LogStash::Filters::Base
 
     filter_matched(event) if matched
     @logger.debug? && @logger.debug("Event after xml filter", :event => event)
+  rescue => e
+    event.tag(XMLPARSEFAILURE_TAG)
+
+    log_payload = { :exception => e.message, :source => @source }
+    log_payload[:value] = value unless value.nil?
+    log_payload[:backtrace] = e.backtrace if @logger.debug?
+
+    @logger.warn("XML Parse Error", log_payload)
   end
 
   private

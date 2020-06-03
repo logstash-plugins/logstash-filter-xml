@@ -1,3 +1,6 @@
+## 4.1.1
+  - Fix: exceptions thrown while handling events no longer crash the pipeline [#73](https://github.com/logstash-plugins/logstash-filter-xml/pull/73)
+
 ## 4.1.0
   - Feat: added parser_options for more control over XML parsing [#68](https://github.com/logstash-plugins/logstash-filter-xml/pull/68)
 
