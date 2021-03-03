@@ -436,7 +436,7 @@ describe LogStash::Filters::Xml do
     end
 
     context 'strict option' do
-      let(:options) { super.merge({ 'parse_options' => 'strict' }) }
+      let(:options) { super().merge({ 'parse_options' => 'strict' }) }
 
       it 'does fail parsing' do
         subject.filter(event)
