@@ -1,3 +1,6 @@
+## 4.1.2
+  - [DOC] Updated docs to correct name of parse_options config option [#75](https://github.com/logstash-plugins/logstash-filter-xml/pull/75)
+
 ## 4.1.1
   - Fix: exceptions thrown while handling events no longer crash the pipeline [#73](https://github.com/logstash-plugins/logstash-filter-xml/pull/73)
 
