@@ -189,7 +189,6 @@ multiple source fields will produce duplicate entries in the field.
 
 More on XPath: https://www.w3schools.com/xml/xml_xpath.asp
 
-The XPath functions are particularly powerful:
 The https://www.w3schools.com/xml/xsl_functions.asp[XPath functions] are particularly powerful. 
 
 
