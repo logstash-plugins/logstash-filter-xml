@@ -100,7 +100,7 @@ Currently supported options are:
 
  - `strict` - forces the parser to fail early instead of accumulating errors when content is not valid xml.
  
-This still means that non allowed control characters like for instance ASCII 0x0 always mean a non valid XML.
+Control characters such as ASCII 0x0 are not allowed and _always_ result in non-valid XML.
 
 XML 1.0 Spec: https://www.w3.org/TR/2008/REC-xml-20081126/#charsets
 
