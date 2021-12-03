@@ -187,6 +187,9 @@ destination field. Multiple values returned will be pushed onto the
 destination field as an array. As such, multiple matches across
 multiple source fields will produce duplicate entries in the field.
 
+[id="plugins-{type}s-{plugin}-xpath_resources"]
+====== Additional XPath resources
+
 For more information on XPath, see https://www.w3schools.com/xml/xml_xpath.asp.
 
 The https://www.w3schools.com/xml/xsl_functions.asp[XPath functions] are particularly powerful. 
