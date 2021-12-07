@@ -1,3 +1,7 @@
+## 4.1.3
+  - [DOC] Updated URL for current xsl reference docs [#70](https://github.com/logstash-plugins/logstash-filter-xml/pull/70)
+  - [DOC] Added info about non valid characters [#72](https://github.com/logstash-plugins/logstash-filter-xml/pull/72)  
+
 ## 4.1.2
   - [DOC] Updated docs to correct name of parse_options config option [#75](https://github.com/logstash-plugins/logstash-filter-xml/pull/75)
 

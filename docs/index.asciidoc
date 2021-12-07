@@ -102,11 +102,14 @@ Currently supported options are:
  
 Control characters such as ASCII 0x0 are not allowed and _always_ result in non-valid XML.
 
-XML 1.0 Spec: https://www.w3.org/TR/2008/REC-xml-20081126/#charsets
+When XML content is not valid, it will be tagged as `_xmlparsefailure`.
 
-XML 1.1 Spec: https://www.w3.org/TR/xml11/#charsets
+XML specs:
 
-In case whenever XML Content is not valid, it will be tagged with a tag `_xmlparsefailure`.
+* XML 1.0 Spec: https://www.w3.org/TR/2008/REC-xml-20081126/#charsets
+* XML 1.1 Spec: https://www.w3.org/TR/xml11/#charsets
+
+
  
 
 [id="plugins-{type}s-{plugin}-remove_namespaces"]
