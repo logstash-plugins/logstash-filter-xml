@@ -99,6 +99,15 @@ By default the parser is not strict and thus accepts some invalid content.
 Currently supported options are:
 
  - `strict` - forces the parser to fail early instead of accumulating errors when content is not valid xml.
+ 
+Control characters such as ASCII 0x0 are not allowed and _always_ result in non-valid XML.
+
+XML 1.0 Spec: https://www.w3.org/TR/2008/REC-xml-20081126/#charsets
+
+XML 1.1 Spec: https://www.w3.org/TR/xml11/#charsets
+
+In case whenever XML Content is not valid, it will be tagged with a tag `_xmlparsefailure`.
+ 
 
 [id="plugins-{type}s-{plugin}-remove_namespaces"]
 ===== `remove_namespaces` 
