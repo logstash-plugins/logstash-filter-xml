@@ -106,7 +106,7 @@ XML 1.0 Spec: https://www.w3.org/TR/2008/REC-xml-20081126/#charsets
 
 XML 1.1 Spec: https://www.w3.org/TR/xml11/#charsets
 
-In case whenever XML Content is not valid, it will be tagged with a tag `_xmlparsefailure`.
+When XML content is not valid, it will be tagged as `_xmlparsefailure`.
  
 
 [id="plugins-{type}s-{plugin}-remove_namespaces"]
