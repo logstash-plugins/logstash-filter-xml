@@ -17,6 +17,7 @@ env:
   jobs:
     - ELASTIC_STACK_VERSION=8.x
     - SNAPSHOT=true ELASTIC_STACK_VERSION=8.x
+    - SNAPSHOT=true ELASTIC_STACK_VERSION=8.4.0-SNAPSHOT
 
 jobs:
 - stage: Performance
