@@ -1,3 +1,6 @@
+## 4.2.0
+  - Update Nokogiri dependency version [#78](https://github.com/logstash-plugins/logstash-filter-xml/pull/78)
+
 ## 4.1.3
   - [DOC] Updated URL for current xsl reference docs [#70](https://github.com/logstash-plugins/logstash-filter-xml/pull/70)
   - [DOC] Added info about non valid characters [#72](https://github.com/logstash-plugins/logstash-filter-xml/pull/72)  
