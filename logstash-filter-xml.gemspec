@@ -1,13 +1,13 @@
 Gem::Specification.new do |s|
 
   s.name            = 'logstash-filter-xml'
-  s.version         = '4.2.0'
+  s.version         = '4.3.0'
   s.licenses        = ['Apache License (2.0)']
   s.summary         = "Parses XML into fields"
   s.description     = "This gem is a Logstash plugin required to be installed on top of the Logstash core pipeline using $LS_HOME/bin/logstash-plugin install gemname. This gem is not a stand-alone program"
   s.authors         = ["Elastic"]
   s.email           = 'info@elastic.co'
-  s.homepage        = "http://www.elastic.co/guide/en/logstash/current/index.html"
+  s.homepage        = "https://www.elastic.co/logstash"
   s.require_paths = ["lib"]
 
   # Files
@@ -22,7 +22,7 @@ Gem::Specification.new do |s|
   # Gem dependencies
   s.add_runtime_dependency 'logstash-core', '>= 8.4.0' # this provides Ruby 2.6.0
   s.add_runtime_dependency "logstash-core-plugin-api", ">= 1.60", "<= 2.99"
-  s.add_runtime_dependency 'nokogiri', '>= 1.13.8' # >= 1.13.0 requires Ruby 2.6+
+  s.add_runtime_dependency 'nokogiri', '>= 1.16.2' # >= 1.13.0 requires Ruby 2.6+
   s.add_runtime_dependency 'xml-simple'
 
   s.add_development_dependency 'logstash-devutils'
