@@ -1,3 +1,6 @@
+## 4.2.1
+  - TODO
+
 ## 4.2.0
   - Update Nokogiri dependency version [#78](https://github.com/logstash-plugins/logstash-filter-xml/pull/78)
 
