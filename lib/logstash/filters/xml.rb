@@ -1,6 +1,7 @@
 # encoding: utf-8
 require "logstash/filters/base"
 require "logstash/namespace"
+require "logstash/filters/xml/patch_rexml"
 
 # XML filter. Takes a field that contains XML and expands it into
 # an actual datastructure.
