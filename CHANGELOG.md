@@ -1,6 +1,5 @@
 ## 4.2.1
   - patch rexml to improve performance of multi-threaded xml parsing [#84](https://github.com/logstash-plugins/logstash-filter-xml/pull/84)
-#84
 
 ## 4.2.0
   - Update Nokogiri dependency version [#78](https://github.com/logstash-plugins/logstash-filter-xml/pull/78)
