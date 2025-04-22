@@ -1,3 +1,6 @@
+## 4.3.1
+  - Update Nokogiri dependency version [#88](https://github.com/logstash-plugins/logstash-filter-xml/pull/88)
+
 ## 4.3.0
   - Update Nokogiri dependency version [#87](https://github.com/logstash-plugins/logstash-filter-xml/pull/87)
 
